@@ -59,24 +59,48 @@ definePageMeta({
       </h1>
 
       <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
-        <div class="flex gap-3">
-          <!-- 日本語入力 -->
+      <!-- 日本語入力 -->
+      <input
+        v-model="japanese"
+        type="text"
+        placeholder="日本語を入力"
+        class="w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
+      >
+
+      <!-- カテゴリ選択 -->
+      <div class="mt-3 flex items-center gap-4 px-1">
+        <!-- 単語 -->
+        <label
+          class="flex cursor-pointer items-center gap-2 text-sm text-emerald-700"
+        >
           <input
-            v-model="japanese"
-            type="text"
-            placeholder="日本語を入力"
-            class="flex-1 rounded-xl border border-emerald-200 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
+            v-model="category"
+            type="radio"
+            value="単語"
+            class="accent-emerald-500"
           >
 
-          <!-- カテゴリ選択 -->
-          <select
+          <span>
+            単語
+          </span>
+        </label>
+
+        <!-- 会話 -->
+        <label
+          class="flex cursor-pointer items-center gap-2 text-sm text-emerald-700"
+        >
+          <input
             v-model="category"
-            class="w-28 rounded-xl border border-emerald-200 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
+            type="radio"
+            value="会話"
+            class="accent-emerald-500"
           >
-            <option value="単語">単語</option>
-            <option value="会話">会話</option>
-          </select>
-        </div>
+
+          <span>
+            会話
+          </span>
+        </label>
+      </div>
 
         <!-- 登録ボタン -->
         <button
