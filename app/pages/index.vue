@@ -1,15 +1,25 @@
 <script setup lang="ts">
+// カテゴリの型
 type Category = '単語' | '会話'
 
+// 入力値
 const japanese = ref('')
+
+// 選択中カテゴリ
 const category = ref<Category>('単語')
+
+// 翻訳結果
 const result = ref('')
+
+// 登録中状態
 const isLoading = ref(false)
 
+// 翻訳登録処理
 const submit = async () => {
   isLoading.value = true
 
   try {
+    // 翻訳APIへ送信
     const response = await $fetch<{
       japanese: string
       english: string
@@ -22,14 +32,16 @@ const submit = async () => {
       }
     })
 
+    // 翻訳結果を表示
     result.value = response.english
   }
   finally {
+    // ローディング終了
     isLoading.value = false
   }
 }
 
-//タイトル
+// ページタイトル
 useHead({
   title: '英語を登録 | English Notes'
 })
@@ -44,6 +56,7 @@ useHead({
 
       <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
         <div class="flex gap-3">
+          <!-- 日本語入力 -->
           <input
             v-model="japanese"
             type="text"
@@ -51,6 +64,7 @@ useHead({
             class="flex-1 rounded-xl border border-emerald-200 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
           >
 
+          <!-- カテゴリ選択 -->
           <select
             v-model="category"
             class="w-28 rounded-xl border border-emerald-200 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
@@ -60,6 +74,7 @@ useHead({
           </select>
         </div>
 
+        <!-- 登録ボタン -->
         <button
           type="button"
           :disabled="isLoading"
@@ -74,6 +89,7 @@ useHead({
           {{ isLoading ? '登録中...' : '登録' }}
         </button>
 
+        <!-- 翻訳結果 -->
         <p
           v-if="result"
           class="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-900"
@@ -82,6 +98,7 @@ useHead({
         </p>
       </div>
 
+      <!-- 一覧ページへのリンク -->
       <NuxtLink
         to="/notes"
         class="inline-flex w-fit rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-100"
