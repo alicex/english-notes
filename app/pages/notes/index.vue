@@ -14,6 +14,10 @@ const { data: notes } = await useFetch<Note[]>('/api/notes')
 useHead({
   title: '登録済み一覧 | English Notes'
 })
+//ログイン
+definePageMeta({
+  middleware: ['auth']
+})
 </script>
 
 <template>

@@ -3,8 +3,8 @@ export default defineNuxtConfig({
     notionToken: process.env.NOTION_TOKEN,
     notionDatabaseId: process.env.NOTION_DATABASE_ID,
     translateApiUrl: process.env.TRANSLATE_API_URL,
-    basicAuthUser: process.env.BASIC_AUTH_USER,
-    basicAuthPassword: process.env.BASIC_AUTH_PASSWORD
+    loginUser: process.env.LOGIN_USER,
+    loginPassword: process.env.LOGIN_PASSWORD
   },
 
   modules: ["@nuxtjs/tailwindcss"]

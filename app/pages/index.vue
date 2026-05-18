@@ -45,6 +45,10 @@ const submit = async () => {
 useHead({
   title: '英語を登録 | English Notes'
 })
+//ログイン
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 
 <template>
