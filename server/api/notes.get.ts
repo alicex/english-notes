@@ -9,6 +9,7 @@ type Note = {
   japanese: string
   english: string
   category: Category | ''
+  createdAt: string
 }
 
 // 登録済みメモ一覧を取得
@@ -48,7 +49,8 @@ export default defineEventHandler(async (): Promise<Note[]> => {
       id: page.id,
       japanese: properties.Japanese?.title?.[0]?.plain_text ?? '',
       english: properties.English?.rich_text?.[0]?.plain_text ?? '',
-      category: properties.Category?.select?.name ?? ''
+      category: properties.Category?.select?.name ?? '',
+      createdAt:properties.CreatedAt?.created_time ?? ''
     }
   })
 })

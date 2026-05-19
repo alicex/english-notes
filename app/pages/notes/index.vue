@@ -5,24 +5,70 @@ type Note = {
   japanese: string
   english: string
   category: '単語' | '会話'
+  createdAt: string
 }
 
 // 登録済みメモ一覧を取得
 const { data: notes } = await useFetch<Note[]>('/api/notes')
 
+// 発音
+const speak = (text: string) => {
+  // 読み上げ中を停止
+  speechSynthesis.cancel()
+
+  const utterance =
+    new SpeechSynthesisUtterance(text)
+
+  // 英語設定
+  utterance.lang = 'en-US'
+
+  // 少しゆっくり
+  utterance.rate = 0.9
+
+  // 音の高さ
+  utterance.pitch = 1.2
+
+  // 音量
+  utterance.volume = 1
+
+  // 利用可能音声取得
+  const voices =
+    speechSynthesis.getVoices()
+
+  // 自然な英語音声を優先
+  const selectedVoice =
+    voices.find((voice) =>
+      voice.name.includes('Google') &&
+      voice.lang.includes('en-US')
+    )
+    ||
+    voices.find((voice) =>
+      voice.lang.includes('en-US')
+    )
+
+  // 音声設定
+  if (selectedVoice) {
+    utterance.voice = selectedVoice
+  }
+
+  // 再生
+  speechSynthesis.speak(utterance)
+}
+
 // ページタイトル
 useHead({
   title: '登録済み一覧 | English Notes'
 })
-//ログイン
+
+// ログイン認証
 definePageMeta({
-  middleware: ['auth']
+  middleware: 'auth'
 })
 </script>
 
 <template>
   <main class="min-h-screen bg-emerald-50 p-6">
-    <div class="mx-auto max-w-3xl">
+    <div class="mx-auto max-w-4xl">
       <!-- ページ見出し -->
       <div class="mb-6 flex items-center justify-between">
         <div>
@@ -45,12 +91,17 @@ definePageMeta({
       </div>
 
       <!-- 一覧テーブル -->
-      <div class="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
+      <div
+        class="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm"
+      >
         <!-- テーブル見出し -->
-        <div class="grid grid-cols-[88px_1fr_1fr] bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900">
+        <div
+          class="grid grid-cols-[88px_1fr_1fr_100px] bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900"
+        >
           <p>カテゴリ</p>
           <p>英語</p>
           <p>日本語</p>
+          <p class="text-right">登録日</p>
         </div>
 
         <ul>
@@ -58,10 +109,10 @@ definePageMeta({
           <li
             v-for="note in notes ?? []"
             :key="note.id"
-            class="grid grid-cols-[88px_1fr_1fr] items-center border-t border-emerald-100 px-4 py-3 transition hover:bg-emerald-50"
+            class="grid grid-cols-[88px_1fr_1fr_100px] items-center border-t border-emerald-100 px-4 py-3 transition hover:bg-emerald-50"
           >
+            <!-- カテゴリ -->
             <p>
-              <!-- カテゴリラベル -->
               <span
                 class="inline-flex rounded-full px-3 py-1 text-xs font-bold"
                 :class="[
@@ -75,13 +126,32 @@ definePageMeta({
             </p>
 
             <!-- 英語 -->
-            <p class="font-bold text-gray-900">
-              {{ note.english }}
-            </p>
+            <div class="flex items-center gap-2">
+              <p class="font-bold text-gray-900">
+                {{ note.english }}
+              </p>
+
+              <!-- 発音ボタン -->
+              <button
+                type="button"
+                class="text-sm text-emerald-500 transition hover:text-emerald-700"
+                @click="speak(note.english)"
+              >
+                🔊
+              </button>
+            </div>
 
             <!-- 日本語 -->
             <p class="text-gray-700">
               {{ note.japanese }}
+            </p>
+            
+            <!-- 登録日 -->
+            <p class="text-right text-xs text-gray-400">
+              {{
+                new Date(note.createdAt)
+                  .toLocaleDateString('ja-JP')
+              }}
             </p>
           </li>
         </ul>
