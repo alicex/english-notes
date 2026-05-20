@@ -41,6 +41,50 @@ const submit = async () => {
   }
 }
 
+// 発音
+const speak = (text: string) => {
+  // 再生中停止
+  speechSynthesis.cancel()
+
+  const utterance =
+    new SpeechSynthesisUtterance(text)
+
+  // 英語設定
+  utterance.lang = 'en-US'
+
+  // スピード
+  utterance.rate = 0.9
+
+  // 音の高さ
+  utterance.pitch = 1.2
+
+  // 音量
+  utterance.volume = 1
+
+  // 利用可能音声
+  const voices =
+    speechSynthesis.getVoices()
+
+  // 英語音声優先
+  const selectedVoice =
+    voices.find((voice) =>
+      voice.name.includes('Google') &&
+      voice.lang.includes('en-US')
+    )
+    ||
+    voices.find((voice) =>
+      voice.lang.includes('en-US')
+    )
+
+  // 音声設定
+  if (selectedVoice) {
+    utterance.voice = selectedVoice
+  }
+
+  // 再生
+  speechSynthesis.speak(utterance)
+}
+
 // ページタイトル
 useHead({
   title: '英語を登録 | English Notes'
@@ -118,12 +162,24 @@ definePageMeta({
         </button>
 
         <!-- 翻訳結果 -->
-        <p
+        <div
           v-if="result"
-          class="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-900"
+          class="mt-4 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 p-4"
         >
-          翻訳: {{ result }}
-        </p>
+          <!-- 翻訳テキスト -->
+          <p class="font-bold text-emerald-900">
+            翻訳: {{ result }}
+          </p>
+
+          <!-- 発音ボタン -->
+          <button
+            type="button"
+            class="text-sm text-emerald-500 transition hover:text-emerald-700"
+            @click="speak(result)"
+          >
+            🔊
+          </button>
+        </div>
       </div>
 
       <!-- 一覧ページへのリンク -->

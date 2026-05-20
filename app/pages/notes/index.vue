@@ -22,7 +22,7 @@ const speak = (text: string) => {
   // 英語設定
   utterance.lang = 'en-US'
 
-  // 少しゆっくり
+  // スピード
   utterance.rate = 0.9
 
   // 音の高さ
@@ -70,7 +70,7 @@ definePageMeta({
   <main class="min-h-screen bg-emerald-50 p-6">
     <div class="mx-auto max-w-4xl">
       <!-- ページ見出し -->
-      <div class="mb-6 flex items-center justify-between">
+      <div class="mb-6 flex items-center justify-between gap-x-2">
         <div>
           <h1 class="text-3xl font-bold text-emerald-900">
             登録済み一覧
@@ -84,7 +84,7 @@ definePageMeta({
         <!-- 登録ページへのリンク -->
         <NuxtLink
           to="/"
-          class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-100"
+          class="shrink rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-100"
         >
           登録へ戻る
         </NuxtLink>
@@ -96,12 +96,12 @@ definePageMeta({
       >
         <!-- テーブル見出し -->
         <div
-          class="grid grid-cols-[88px_1fr_1fr_100px] bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900"
+          class="grid grid-cols-[1fr_1fr_60px_60px] gap-x-1 bg-emerald-100 px-2 py-3 text-sm font-bold text-emerald-900"
         >
-          <p>カテゴリ</p>
           <p>英語</p>
           <p>日本語</p>
-          <p class="text-right">登録日</p>
+          <p class="text-center">カテゴリ</p>
+          <p class="text-center">登録日</p>
         </div>
 
         <ul>
@@ -109,20 +109,12 @@ definePageMeta({
           <li
             v-for="note in notes ?? []"
             :key="note.id"
-            class="grid grid-cols-[88px_1fr_1fr_100px] items-center border-t border-emerald-100 px-4 py-3 transition hover:bg-emerald-50"
+            class="grid grid-cols-[1fr_1fr_60px_60px] gap-x-1 items-center border-t border-emerald-100 px-2 py-3 transition hover:bg-emerald-50"
           >
-            <!-- カテゴリ -->
-            <p>
-              <span
-                class="inline-flex rounded-full px-3 py-1 text-xs font-bold"
-                :class="[
-                  note.category === '単語'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-cyan-100 text-cyan-700'
-                ]"
-              >
-                {{ note.category }}
-              </span>
+
+            <!-- 日本語 -->
+            <p class="text-gray-700">
+              {{ note.japanese }}
             </p>
 
             <!-- 英語 -->
@@ -141,13 +133,22 @@ definePageMeta({
               </button>
             </div>
 
-            <!-- 日本語 -->
-            <p class="text-gray-700">
-              {{ note.japanese }}
+            <!-- カテゴリ -->
+            <p class="text-center">
+              <span
+                class="inline-flex rounded-full px-2 py-1 text-xs font-bold"
+                :class="[
+                  note.category === '単語'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-cyan-100 text-cyan-700'
+                ]"
+              >
+                {{ note.category }}
+              </span>
             </p>
             
             <!-- 登録日 -->
-            <p class="text-right text-xs text-gray-400">
+            <p class="text-xs text-gray-400">
               {{
                 new Date(note.createdAt)
                   .toLocaleDateString('ja-JP')
