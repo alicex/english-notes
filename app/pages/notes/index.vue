@@ -4,12 +4,61 @@ type Note = {
   id: string
   japanese: string
   english: string
-  category: '単語' | '会話'
+  category: '単語' | '会話' | ''
   createdAt: string
 }
 
+// カテゴリ絞り込みの型
+type CategoryFilter = 'すべて' | '単語' | '会話'
+
 // 登録済みメモ一覧を取得
 const { data: notes } = await useFetch<Note[]>('/api/notes')
+
+// 検索キーワード
+const searchKeyword = ref('')
+
+// 選択中カテゴリ
+const selectedCategory = ref<CategoryFilter>('すべて')
+
+// 検索・絞り込みパネルの開閉状態
+const isFilterOpen = ref(false)
+
+// カテゴリ選択肢
+const categoryOptions: CategoryFilter[] = [
+  'すべて',
+  '単語',
+  '会話'
+]
+
+// 検索・絞り込み条件が設定されているか
+const hasFilter = computed(() =>
+  searchKeyword.value.trim() !== '' ||
+  selectedCategory.value !== 'すべて'
+)
+
+// 検索・カテゴリ絞り込み後のメモ一覧
+const filteredNotes = computed(() => {
+  const keyword = searchKeyword.value.trim().toLowerCase()
+
+  return (notes.value ?? []).filter((note) => {
+    const matchesKeyword =
+      !keyword ||
+      note.japanese.toLowerCase().includes(keyword) ||
+      note.english.toLowerCase().includes(keyword)
+
+    const matchesCategory =
+      selectedCategory.value === 'すべて' ||
+      note.category === selectedCategory.value
+
+    return matchesKeyword && matchesCategory
+  })
+})
+
+// 検索・絞り込み条件をクリア
+const clearFilter = () => {
+  searchKeyword.value = ''
+  selectedCategory.value = 'すべて'
+}
 
 // 発音
 const speak = (text: string) => {
@@ -90,26 +139,105 @@ definePageMeta({
         </NuxtLink>
       </div>
 
+      <!-- 検索・絞り込み -->
+      <div
+        class="mb-4 rounded-2xl border border-emerald-100 bg-white px-3 py-2 shadow-sm"
+      >
+        <div class="flex items-center justify-between gap-3">
+          <!-- 開閉ボタン -->
+          <button
+            type="button"
+            class="flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+            @click="isFilterOpen = !isFilterOpen"
+          >
+            <span>
+              検索・絞り込み
+            </span>
+
+            <span class="text-xs">
+              {{ isFilterOpen ? '▲' : '▼' }}
+            </span>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <!-- 検索中バッジ -->
+            <span
+              v-if="hasFilter"
+              class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700"
+            >
+              検索中
+            </span>
+
+            <!-- 表示件数 -->
+            <span class="text-xs font-bold text-emerald-600">
+              {{ filteredNotes.length }}件
+            </span>
+          </div>
+        </div>
+
+        <div
+          v-if="isFilterOpen"
+          class="mt-3 grid gap-3 pb-2 md:grid-cols-[1fr_auto_auto] md:items-center"
+        >
+          <!-- 検索入力 -->
+          <input
+            v-model="searchKeyword"
+            type="search"
+            placeholder="日本語・英語で検索"
+            class="w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-emerald-300 focus:border-emerald-500"
+          >
+
+          <!-- カテゴリ絞り込み -->
+          <div
+            class="grid grid-cols-3 rounded-xl bg-emerald-50 p-1 ring-1 ring-emerald-100"
+          >
+            <button
+              v-for="option in categoryOptions"
+              :key="option"
+              type="button"
+              class="rounded-lg px-3 py-2 text-sm font-bold transition"
+              :class="[
+                selectedCategory === option
+                  ? 'bg-white text-emerald-700 shadow-sm'
+                  : 'text-emerald-600 hover:bg-white/70'
+              ]"
+              @click="selectedCategory = option"
+            >
+              {{ option }}
+            </button>
+          </div>
+
+          <!-- 条件クリア -->
+          <button
+            type="button"
+            :disabled="!hasFilter"
+            class="rounded-xl px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-emerald-300 disabled:hover:bg-transparent"
+            @click="clearFilter"
+          >
+            クリア
+          </button>
+        </div>
+      </div>
+
       <!-- 一覧テーブル -->
       <div
         class="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm"
       >
         <!-- テーブル見出し -->
         <div
-          class="grid grid-cols-[1fr_1fr_60px_60px] gap-x-1 bg-emerald-100 px-2 py-3 text-sm font-bold text-emerald-900"
+          class="grid grid-cols-[1fr_1fr_60px] gap-x-1 bg-emerald-100 px-2 py-3 text-sm font-bold text-emerald-900"
         >
           <p>英語</p>
           <p>日本語</p>
           <p class="text-center">カテゴリ</p>
-          <p class="text-center">登録日</p>
         </div>
 
         <ul>
           <!-- メモ一覧 -->
           <li
-            v-for="note in notes ?? []"
+            v-for="note in filteredNotes"
             :key="note.id"
-            class="grid grid-cols-[1fr_1fr_60px_60px] gap-x-1 items-center border-t border-emerald-100 px-2 py-3 transition hover:bg-emerald-50"
+            class="grid grid-cols-[1fr_1fr_60px] gap-x-1 items-center border-t border-emerald-100 px-2 py-3 transition hover:bg-emerald-50"
           >
 
             <!-- 日本語 -->
@@ -146,14 +274,6 @@ definePageMeta({
                 {{ note.category }}
               </span>
             </p>
-            
-            <!-- 登録日 -->
-            <p class="text-xs text-gray-400">
-              {{
-                new Date(note.createdAt)
-                  .toLocaleDateString('ja-JP')
-              }}
-            </p>
           </li>
         </ul>
       </div>
@@ -164,6 +284,14 @@ definePageMeta({
         class="mt-6 rounded-xl bg-white p-4 text-center text-sm text-emerald-700 ring-1 ring-emerald-100"
       >
         まだ登録がありません
+      </p>
+
+      <!-- 検索結果なし -->
+      <p
+        v-else-if="!filteredNotes.length"
+        class="mt-6 rounded-xl bg-white p-4 text-center text-sm text-emerald-700 ring-1 ring-emerald-100"
+      >
+        条件に一致するメモがありません
       </p>
     </div>
   </main>
