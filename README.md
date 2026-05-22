@@ -7,6 +7,7 @@
 ```bash
 npm install
 npm run dev
+```
 
 ```
 english-notes/
@@ -64,6 +65,6 @@ english-notes/
 
 ---
 
-https://script.google.com/
-https://vercel.com/
-https://www.notion.so/developers/
+- https://script.google.com/
+- https://vercel.com/
+- https://www.notion.so/developers/
