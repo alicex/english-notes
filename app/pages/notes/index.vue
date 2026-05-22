@@ -179,12 +179,26 @@ definePageMeta({
           class="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 pb-1"
         >
           <!-- 検索入力 -->
-          <input
-            v-model="searchKeyword"
-            type="search"
-            placeholder="日本語・英語で検索"
-            class="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2 text-base outline-none transition placeholder:text-emerald-300 focus:border-emerald-500 md:text-sm"
-          >
+          <div class="relative">
+            <input
+              v-model="searchKeyword"
+              type="text"
+              inputmode="search"
+              aria-label="日本語・英語で検索"
+              placeholder="日本語・英語で検索"
+              class="w-full rounded-xl border border-emerald-200 bg-white py-2 pl-4 pr-10 text-base outline-none transition placeholder:text-emerald-300 focus:border-emerald-500 md:text-sm"
+            >
+
+            <button
+              v-if="searchKeyword"
+              type="button"
+              aria-label="検索キーワードを消去"
+              class="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-base font-bold leading-none text-emerald-400 transition hover:bg-emerald-50 hover:text-emerald-700"
+              @click="searchKeyword = ''"
+            >
+              ×
+            </button>
+          </div>
 
           <!-- カテゴリ絞り込み -->
           <div
