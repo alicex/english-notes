@@ -24,10 +24,9 @@ const selectedCategory = ref<CategoryFilter>('すべて')
 const isFilterOpen = ref(false)
 
 // カテゴリ選択肢
-const categoryOptions: CategoryFilter[] = [
-  'すべて',
-  '単語',
-  '会話'
+const categoryOptions: Exclude<CategoryFilter, 'すべて'>[] = [
+  '会話',
+  '単語'
 ]
 
 // 検索・絞り込み条件が設定されているか
@@ -53,12 +52,6 @@ const filteredNotes = computed(() => {
     return matchesKeyword && matchesCategory
   })
 })
-
-// 検索・絞り込み条件をクリア
-const clearFilter = () => {
-  searchKeyword.value = ''
-  selectedCategory.value = 'すべて'
-}
 
 // 発音
 const speak = (text: string) => {
@@ -122,18 +115,18 @@ definePageMeta({
       <div class="mb-6 flex items-center justify-between gap-x-2">
         <div>
           <h1 class="text-3xl font-bold text-emerald-900">
-            登録済み一覧
+            登録メモ一覧
           </h1>
 
           <p class="mt-1 text-sm text-emerald-700">
-            登録した英語メモをざっと確認できます
+            登録した英語メモを確認できます
           </p>
         </div>
 
         <!-- 登録ページへのリンク -->
         <NuxtLink
           to="/"
-          class="shrink rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-100"
+          class="shrink-0 whitespace-nowrap rounded-xl bg-white px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-100 sm:px-4"
         >
           登録へ戻る
         </NuxtLink>
@@ -141,13 +134,18 @@ definePageMeta({
 
       <!-- 検索・絞り込み -->
       <div
-        class="mb-4 rounded-2xl border border-emerald-100 bg-white px-3 py-2 shadow-sm"
+        class="mb-4 rounded-xl border border-emerald-100 bg-white px-3 py-1.5 transition-all"
+        :class="[
+          hasFilter
+            ? 'sticky top-3 z-20 shadow-md shadow-emerald-900/10'
+            : 'shadow-sm'
+        ]"
       >
         <div class="flex items-center justify-between gap-3">
           <!-- 開閉ボタン -->
           <button
             type="button"
-            class="flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+            class="flex items-center gap-2 rounded-xl px-3 py-1 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
             @click="isFilterOpen = !isFilterOpen"
           >
             <span>
@@ -160,64 +158,60 @@ definePageMeta({
           </button>
 
           <div class="flex items-center gap-2">
-            <!-- 検索中バッジ -->
-            <span
-              v-if="hasFilter"
-              class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700"
+            <!-- カテゴリ選択を解除 -->
+            <button
+              type="button"
+              class="w-24 rounded-lg px-1 py-1 text-[11px] font-semibold transition"
+              :class="[
+                selectedCategory === 'すべて'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'text-emerald-500 hover:bg-emerald-50'
+              ]"
+              @click="selectedCategory = 'すべて'"
             >
-              検索中
-            </span>
-
-            <!-- 表示件数 -->
-            <span class="text-xs font-bold text-emerald-600">
-              {{ filteredNotes.length }}件
-            </span>
+              カテゴリ選択なし
+            </button>
           </div>
         </div>
 
         <div
           v-if="isFilterOpen"
-          class="mt-3 grid gap-3 pb-2 md:grid-cols-[1fr_auto_auto] md:items-center"
+          class="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 pb-1"
         >
           <!-- 検索入力 -->
           <input
             v-model="searchKeyword"
             type="search"
             placeholder="日本語・英語で検索"
-            class="w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-emerald-300 focus:border-emerald-500"
+            class="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2 text-base outline-none transition placeholder:text-emerald-300 focus:border-emerald-500 md:text-sm"
           >
 
           <!-- カテゴリ絞り込み -->
           <div
-            class="grid grid-cols-3 rounded-xl bg-emerald-50 p-1 ring-1 ring-emerald-100"
+            class="grid min-w-24 grid-cols-2 rounded-lg bg-emerald-50 p-0.5 ring-1 ring-emerald-100"
           >
             <button
               v-for="option in categoryOptions"
               :key="option"
               type="button"
-              class="rounded-lg px-3 py-2 text-sm font-bold transition"
+              class="rounded-md px-2 py-1 text-xs font-semibold transition"
               :class="[
                 selectedCategory === option
                   ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-emerald-600 hover:bg-white/70'
+                  : 'text-emerald-500 hover:bg-white/70'
               ]"
               @click="selectedCategory = option"
             >
               {{ option }}
             </button>
           </div>
-
-          <!-- 条件クリア -->
-          <button
-            type="button"
-            :disabled="!hasFilter"
-            class="rounded-xl px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-emerald-300 disabled:hover:bg-transparent"
-            @click="clearFilter"
-          >
-            クリア
-          </button>
         </div>
       </div>
+
+      <!-- 表示件数 -->
+      <p class="mb-2 text-right text-xs font-bold text-emerald-600">
+        {{ filteredNotes.length }}件
+      </p>
 
       <!-- 一覧テーブル -->
       <div

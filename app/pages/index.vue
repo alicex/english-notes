@@ -6,7 +6,7 @@ type Category = '単語' | '会話'
 const japanese = ref('')
 
 // 選択中カテゴリ
-const category = ref<Category>('単語')
+const category = ref<Category>('会話')
 
 // 翻訳結果
 const result = ref('')
@@ -113,22 +113,6 @@ definePageMeta({
 
       <!-- カテゴリ選択 -->
       <div class="mt-3 flex items-center gap-4 px-1">
-        <!-- 単語 -->
-        <label
-          class="flex cursor-pointer items-center gap-2 text-sm text-emerald-700"
-        >
-          <input
-            v-model="category"
-            type="radio"
-            value="単語"
-            class="accent-emerald-500"
-          >
-
-          <span>
-            単語
-          </span>
-        </label>
-
         <!-- 会話 -->
         <label
           class="flex cursor-pointer items-center gap-2 text-sm text-emerald-700"
@@ -142,6 +126,22 @@ definePageMeta({
 
           <span>
             会話
+          </span>
+        </label>
+
+        <!-- 単語 -->
+        <label
+          class="flex cursor-pointer items-center gap-2 text-sm text-emerald-700"
+        >
+          <input
+            v-model="category"
+            type="radio"
+            value="単語"
+            class="accent-emerald-500"
+          >
+
+          <span>
+            単語
           </span>
         </label>
       </div>
