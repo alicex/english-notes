@@ -95,7 +95,23 @@ const speak = (text: string) => {
 
 // ページタイトル
 useHead({
-  title: 'Kids えいごとうろく | English Notes'
+  title: 'Kids えいごとうろく | English Notes',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/icons/apple-touch-icon-kids.png'
+    },
+    {
+      rel: 'shortcut icon',
+      type: 'image/png',
+      href: '/icons/apple-touch-icon-kids.png'
+    },
+    {
+      rel: 'apple-touch-icon',
+      href: '/icons/apple-touch-icon-kids.png'
+    }
+  ]
 })
 
 // ログイン認証

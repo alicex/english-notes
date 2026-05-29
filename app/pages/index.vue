@@ -87,7 +87,23 @@ const speak = (text: string) => {
 
 // ページタイトル
 useHead({
-  title: '英語を登録 | English Notes'
+  title: '英語を登録 | English Notes',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/icons/apple-touch-icon.png'
+    },
+    {
+      rel: 'shortcut icon',
+      type: 'image/png',
+      href: '/icons/apple-touch-icon.png'
+    },
+    {
+      rel: 'apple-touch-icon',
+      href: '/icons/apple-touch-icon.png'
+    }
+  ]
 })
 //ログイン
 definePageMeta({
