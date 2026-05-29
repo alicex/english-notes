@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
 
   const japanese = body?.japanese
   const category = body?.category as Category | undefined
+  // Kids版はカテゴリなしでKids用DBへ登録
+  const isKids = body?.isKids === true
 
   // 日本語入力のチェック
   if (typeof japanese !== 'string' || !japanese.trim()) {
@@ -19,7 +21,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // カテゴリのチェック
-  if (category !== '単語' && category !== '会話') {
+  if (!isKids && category !== '単語' && category !== '会話') {
     throw createError({
       statusCode: 400,
       statusMessage: 'カテゴリが不正です'
@@ -45,39 +47,58 @@ export default defineEventHandler(async (event) => {
 
   const english = translateResponse.english
 
+  // 通常版とKids版で保存先DBを切り替え
+  const databaseId = isKids
+    ? config.notionKidsDatabaseId
+    : config.notionDatabaseId
+
+  // Notionへ保存する共通プロパティ
+  const properties: Record<string, any> = {
+    Japanese: {
+      title: [
+        {
+          text: {
+            content: japanese
+          }
+        }
+      ]
+    },
+
+    English: {
+      rich_text: [
+        {
+          text: {
+            content: english
+          }
+        }
+      ]
+    }
+  }
+
+  // 通常版だけカテゴリを保存
+  if (!isKids) {
+    properties.Category = {
+      select: {
+        name: category
+      }
+    }
+  }
+
   // Notion DBへ保存
   await notion.pages.create({
     parent: {
-      database_id: config.notionDatabaseId
+      database_id: databaseId
     },
-    properties: {
-      Japanese: {
-        title: [
-          {
-            text: {
-              content: japanese
-            }
-          }
-        ]
-      },
-
-      English: {
-        rich_text: [
-          {
-            text: {
-              content: english
-            }
-          }
-        ]
-      },
-
-      Category: {
-        select: {
-          name: category
-        }
-      }
-    }
+    properties
   })
+
+  // Kids版はカテゴリなしで返す
+  if (isKids) {
+    return {
+      japanese,
+      english
+    }
+  }
 
   // 登録結果を返す
   return {

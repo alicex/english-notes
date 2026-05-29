@@ -13,8 +13,14 @@ type Note = {
 }
 
 // 登録済みメモ一覧を取得
-export default defineEventHandler(async (): Promise<Note[]> => {
+export default defineEventHandler(async (event): Promise<Note[]> => {
+  const query = getQuery(event)
+  const isKids = query.kids === 'true'
   const config = useRuntimeConfig()
+
+  const databaseId = isKids
+    ? config.notionKidsDatabaseId
+    : config.notionDatabaseId
 
   // Notionクライアントを作成
   const notion = new Client({
@@ -23,7 +29,7 @@ export default defineEventHandler(async (): Promise<Note[]> => {
 
   // Notion DB情報を取得
   const database = await notion.databases.retrieve({
-    database_id: config.notionDatabaseId
+    database_id: databaseId
   })
 
   // DBに紐づくdata source IDを取得
@@ -49,7 +55,9 @@ export default defineEventHandler(async (): Promise<Note[]> => {
       id: page.id,
       japanese: properties.Japanese?.title?.[0]?.plain_text ?? '',
       english: properties.English?.rich_text?.[0]?.plain_text ?? '',
-      category: properties.Category?.select?.name ?? '',
+      category: isKids
+        ? ''
+        : properties.Category?.select?.name ?? '',
       createdAt:properties.CreatedAt?.created_time ?? ''
     }
   })
